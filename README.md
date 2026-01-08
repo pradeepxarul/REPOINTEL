@@ -1,127 +1,114 @@
-# 🚀 GitHub User Data Analyzer
+# 🚀 GitHub User Data Analyzer - Production API
 
-Production-ready GitHub profile analyzer using **GitHub App authentication** with parallel API calls, intelligent caching, and comprehensive data extraction.
+> **AI-Powered GitHub Profile Analysis & Candidate Assessment System**
+
+A high-performance FastAPI service that extracts comprehensive developer data from GitHub profiles and generates AI-powered candidate reports for hiring decisions.
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115.6-009688.svg)](https://fastapi.tiangolo.com)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+---
 
 ## ✨ Features
 
-- 🔐 **GitHub App Authentication** - Secure JWT-based authentication
-- ⚡ **Parallel API Calls** - Up to 32 concurrent requests (~1.2s response)
-- 💾 **Intelligent Caching** - 24-hour TTL, <20ms cached response
-- 📊 **Complete Data Extraction** - Profile, repositories, languages, READMEs
-- 🎯 **Production-Ready** - Error handling, logging, validation
-- 📈 **High Capacity** - 112K users/month per server
-- 📝 **Interactive Docs** - Swagger UI at `/docs`
+### 📊 Complete GitHub Analysis
+- **User Profiles** - Full developer information
+- **Repository Data** - All public repos with detailed metrics
+- **Language Statistics** - Percentage breakdown of tech stack
+- **README Extraction** - Main README content
+- **📄 ALL Markdown Files** - Complete `.md` file extraction (CONTRIBUTING, docs, etc.)
+- **Smart Caching** - 24-hour TTL for instant repeat queries
 
-## 🎯 Quick Start (5 Minutes)
+### 🤖 AI-Powered Candidate Reports
+- **GROQ Llama 3.3 70B** - Primary (Fast & Cost-effective)
+- **OpenAI GPT-4o** - Alternative
+- **Google Gemini** - Alternative
+- **Comprehensive Analysis** - Skills, projects, code quality, hiring recommendations
+- **Domain Detection** - Web, Mobile, ML, DevOps, etc.
+- **Framework Identification** - React, FastAPI, Django, etc.
+- **Quantitative Scores** - Technical assessment, code quality, hiring score (/10)
 
-### Prerequisites
+### 💾 Data Persistence
+- **JSON Storage** - Auto-save all analyzed profiles to `db/`
+- **Fast Retrieval** - Use stored data for instant reports
+- **Human-Readable** - Easy to inspect and backup
 
-- Python 3.9+
-- GitHub App credentials (App ID, Installation ID, Private Key)
+---
 
-### 1. Clone & Navigate
+## 🏗️ Architecture
 
-```bash
-cd d:\pp\Tringapps\Git-user_data-analyser
+```
+src/
+├── core/           # Configuration & exceptions
+├── models/         # Pydantic schemas
+├── services/       # Business logic (GitHub, LLM, Storage, Cache)
+├── api/            # FastAPI routes
+├── utils/          # Validators, logging
+└── main.py         # Application entry
 ```
 
-### 2. Create Virtual Environment
+**Professional layered architecture** with clean separation of concerns.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Prerequisites
+- Python 3.11+
+- GitHub App credentials
+- GROQ API key (or OpenAI/Gemini)
+
+### 2. Installation
 
 ```bash
+# Clone repository
+git clone <your-repo-url>
+cd Git-user_data-analyser
+
 # Create virtual environment
 python -m venv venv
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/Mac
 
-# Activate (Windows)
-venv\Scripts\activate
-
-# Activate (Linux/Mac)
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### 4. Configure Environment
+### 3. Configuration
 
-Create `.env` file with your GitHub App credentials:
-
-```bash
-# Copy example
-copy .env.example .env
-
-# Edit .env with your credentials
-```
-
-Your `.env` should look like:
+Copy `.env.example` to `.env` and configure:
 
 ```env
-# GitHub App Configuration
-GITHUB_APP_ID=51234567
-GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----
-MIIEvgIBADANBgkqhkiG...your private key content...
------END RSA PRIVATE KEY-----"
-GITHUB_INSTALLATION_ID=101994286
+# GitHub App (Required)
+GITHUB_APP_ID=your_app_id
+GITHUB_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----..."
+GITHUB_INSTALLATION_ID=your_installation_id
 
-# Service Configuration
-MAX_REPOS_PER_USER=15
-CACHE_TTL_SECONDS=86400
-API_TIMEOUT_SECONDS=10
-LOG_LEVEL=INFO
-PORT=8000
-ENVIRONMENT=production
+# LLM for AI Reports (Required for reports)
+GROQ_API_KEY=gsk_your_groq_key_here
+LLM_MODEL=llama-3.3-70b-versatile
+LLM_TEMPERATURE=0.1
+LLM_MAX_TOKENS=2048
 ```
 
-### 5. Run Server
+### 4. Run Server
 
 ```bash
-# Navigate to src directory
 cd src
-
-# Start server
 python main.py
 ```
 
-You should see:
+Server starts at `http://localhost:8000`
 
-```
-============================================================
-🚀 GitHub User Data Analyzer
-📍 Installation ID: 101994286
-⚙️  Environment: production
-📊 Capacity: 112,000 users/month
-⏱️  Latency: <1.5 seconds per analysis
-🔗 Swagger Docs: http://localhost:8000/docs
-============================================================
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-```
+📖 **Swagger Docs**: `http://localhost:8000/docs`
 
-### 6. Test API
+---
 
-**Open Swagger UI:**
-```
-http://localhost:8000/docs
-```
-
-**Test with cURL:**
-
-```bash
-# Health check
-curl http://localhost:8000/api/v1/health
-
-# Analyze profile
-curl -X POST http://localhost:8000/api/v1/analyze \
-  -H "Content-Type: application/json" \
-  -d "{\"github_input\": \"torvalds\"}"
-```
-
-## 📖 API Documentation
+## 📡 API Endpoints
 
 ### POST /api/v1/analyze
-
-Analyze a GitHub user profile.
+**Analyze GitHub Profile + Extract All Data**
 
 **Request:**
 ```json
@@ -130,287 +117,338 @@ Analyze a GitHub user profile.
 }
 ```
 
-OR with URL:
-```json
-{
-  "github_input": "https://github.com/torvalds"
-}
-```
-
 **Response:**
 ```json
 {
-  "status": "success",
-  "request_id": "a1b2c3d4",
-  "timestamp": "2025-12-31T10:27:00.000Z",
   "user": {
     "login": "torvalds",
     "name": "Linus Torvalds",
-    "bio": "Linux kernel creator",
-    "location": "Portland, OR",
-    "followers": 250000,
-    "following": 50,
-    "public_repos": 5,
-    "created_at": "2005-04-15T00:00:00Z",
-    "updated_at": "2025-12-31T10:00:00Z",
-    "avatar_url": "https://avatars.githubusercontent.com/u/1024025",
-    "blog": "https://www.kernel.org",
-    "company": "Linux Foundation"
+    "bio": "...",
+    // ... full profile
   },
   "repositories": [
     {
       "name": "linux",
       "full_name": "torvalds/linux",
-      "description": "Linux kernel source tree",
-      "html_url": "https://github.com/torvalds/linux",
-      "stargazers_count": 180000,
-      "forks_count": 60000,
+      
+      // ✅ Popularity Metrics
+      "stargazers_count": 250,
+      "forks_count": 45,
+      "watchers_count": 180,
+      "open_issues_count": 12,
+      
+      // ✅ Activity metrics
+      "pushed_at": "2025-12-30T13:31:35Z",
+      "last_commit_date": "2025-12-30T13:31:35Z",
+      "days_since_last_commit": 1,
+      
+      // ✅ Repository Features
       "language": "C",
-      "topics": ["linux", "kernel"],
-      "created_at": "2005-04-15T00:00:00Z",
-      "updated_at": "2025-12-31T10:00:00Z",
+      "topics": ["kernel", "os"],
+      "has_wiki": true,
+      "has_projects": false,
+      
+      // ✅ Language Breakdown
       "languages": {
-        "raw_bytes": {
-          "C": 123456789,
-          "Assembly": 8700000
-        },
-        "percentages": {
-          "C": 93.4,
-          "Assembly": 6.6
-        }
+        "raw_bytes": {"C": 98300, "Assembly": 1200},
+        "percentages": {"C": 98.3, "Assembly": 1.7}
       },
+      
       "readme": {
-        "content": "# Linux Kernel\n\nThis is the Linux kernel...",
-        "length_chars": 2145,
-        "has_readme": true
-      }
+        "content": "... full README ...",
+        "has_readme": true,
+        "length_chars": 5020
+      },
+      
+      // ✅ ALL Markdown Files
+      "markdown_files": [
+        {
+          "filename": "CONTRIBUTING.md",
+          "path": "docs/CONTRIBUTING.md",
+          "content": "... COMPLETE CONTENT ...",
+          "length_chars": 2500
+        }
+      ]
     }
-  ],
-  "total_repos_analyzed": 5,
-  "total_api_calls": 32,
-  "performance": {
-    "github_api_latency_ms": 850,
-    "processing_latency_ms": 200,
-    "total_latency_ms": 1050,
-    "cache_hit": false,
-    "cache_ttl_remaining_seconds": 86400
+  ]
+}
+```
+
+**Auto-saves to:** `db/{username}.json`
+
+---
+
+### POST /api/v1/reports/generate
+**Generate AI-Powered Candidate Report**
+
+**Request:**
+```json
+{
+  "username": "torvalds",
+  "report_type": "full",
+  "use_stored": true
+}
+```
+
+**Response:**
+```json
+{
+  "report": {
+    "candidate": {
+      "name": "Linus Torvalds",
+      "username": "torvalds"
+    },
+    "executive_summary": "...",
+    "technical_assessment": {
+      "overall_score": 9.5,
+      "primary_languages": ["C", "Assembly"],
+      "frameworks_detected": ["Linux Kernel"],
+      "specializations": ["Systems Programming", "OS Development"]
+    },
+    "code_quality": {
+      "overall_score": 9.8,
+      "documentation_score": 9.5
+    },
+    "hiring_recommendation": {
+      "overall_score": 9.5,
+      "suitable_roles": ["Principal Engineer", "CTO"],
+      "seniority_fit": "Staff/Principal",
+      "recommendation_summary": "..."
+    }
   }
 }
 ```
 
-### GET /api/v1/health
+---
 
-Health check endpoint.
+## 🤖 Switching LLM Models
 
-**Response:**
-```json
-{
-  "status": "healthy",
-  "timestamp": "2025-12-31T10:27:00.000Z",
-  "installation_id": 101994286,
-  "environment": "production",
-  "version": "1.0.0",
-  "capacity": "112K users/month",
-  "rate_limit": "5000 requests/hour"
-}
+### Change Provider
+
+**Option 1: GROQ (Recommended)**
+```env
+GROQ_API_KEY=gsk_your_key
+LLM_MODEL=llama-3.3-70b-versatile
 ```
 
-### POST /api/v1/cache/clear
-
-Clear all cached data (admin only).
-
-**Response:**
-```json
-{
-  "status": "success",
-  "message": "All cache cleared",
-  "timestamp": "2025-12-31T10:27:00.000Z"
-}
+**Option 2: OpenAI**
+```env
+GROQ_API_KEY=  # Leave empty
+OPENAI_API_KEY=sk-proj-your_key
+LLM_MODEL=gpt-4o
 ```
 
-## 🏗️ Architecture
-
-```
-src/
-├── main.py              # FastAPI app entry point
-├── config.py            # Settings loader (Pydantic)
-├── models.py            # Request/response schemas
-├── cache_service.py     # File-based cache with TTL
-├── github_service.py    # GitHub App client (JWT auth)
-├── api/
-│   └── routes.py        # API endpoints
-└── utils/
-    ├── validators.py    # Input validation
-    └── logger.py        # Logging setup
+**Option 3: Google Gemini**
+```env
+GROQ_API_KEY=  # Leave empty
+GOOGLE_API_KEY=your_gemini_key
+LLM_MODEL=gemini-pro
 ```
 
-## 🔧 Configuration
+### Change Model Parameters
 
-All settings are loaded from `.env` file:
+```env
+# Model name
+LLM_MODEL=llama-3.3-70b-versatile
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `GITHUB_APP_ID` | Your GitHub App ID | Required |
-| `GITHUB_PRIVATE_KEY` | Your GitHub App private key | Required |
-| `GITHUB_INSTALLATION_ID` | Installation ID | Required |
-| `MAX_REPOS_PER_USER` | Max repos to analyze | 15 |
-| `CACHE_TTL_SECONDS` | Cache expiration time | 86400 (24h) |
-| `API_TIMEOUT_SECONDS` | API request timeout | 10 |
-| `LOG_LEVEL` | Logging level | INFO |
-| `PORT` | Server port | 8000 |
-| `ENVIRONMENT` | Environment name | production |
+# Temperature (creativity: 0.0 = focused, 1.0 = creative)
+LLM_TEMPERATURE=0.1
 
-## 🚀 Performance Metrics
-
-- **API Calls per Analysis**: 2 + (2 × N repos) = ~32 calls for 15 repos
-- **Response Time** (uncached): ~1.2 seconds
-- **Response Time** (cached): <20ms
-- **Cache TTL**: 24 hours (configurable)
-- **Rate Limit**: 5,000 requests/hour (GitHub App)
-- **Monthly Capacity**: 112,000 users/month per server
-
-## 🛠️ Development
-
-### Run in Development Mode
-
-```bash
-# Set environment to development in .env
-ENVIRONMENT=development
-
-# Run with auto-reload
-uvicorn main:app --reload --port 8000
+# Max tokens in response
+LLM_MAX_TOKENS=2048
 ```
 
-### View Interactive Docs
+### Available GROQ Models
+- `llama-3.3-70b-versatile` (Recommended - Best balance)
+- `llama-3.1-8b-instant` (Fastest)
+- `mixtral-8x7b-32768` (Large context)
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-
-### Clear Cache
-
-```bash
-curl -X POST http://localhost:8000/api/v1/cache/clear
-```
-
-## 📦 Deployment
-
-### Option 1: Railway (Recommended)
-
-```bash
-# Install Railway CLI
-npm install -g railway
-
-# Login
-railway login
-
-# Initialize project
-railway init
-
-# Add environment variables in Railway dashboard
-# Then deploy
-git push railway main
-```
-
-### Option 2: Heroku
-
-```bash
-# Login
-heroku login
-
-# Create app
-heroku create your-app-name
-
-# Set environment variables
-heroku config:set GITHUB_APP_ID=51234567
-heroku config:set GITHUB_PRIVATE_KEY="..."
-heroku config:set GITHUB_INSTALLATION_ID=101994286
-
-# Deploy
-git push heroku main
-```
-
-### Option 3: Docker
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY src/ src/
-COPY .env .
-
-EXPOSE 8000
-
-CMD ["python", "src/main.py"]
-```
-
-```bash
-docker build -t github-analyzer .
-docker run -p 8000:8000 github-analyzer
-```
-
-## 🔐 Security
-
-- ✅ **GitHub App Authentication** - Secure JWT-based auth
-- ✅ **Environment Variables** - Credentials stored in `.env` (gitignored)
-- ✅ **Input Validation** - Username format validation
-- ✅ **Rate Limiting** - Respects GitHub API limits
-- ✅ **Error Handling** - Comprehensive error responses
-
-## 📊 GitHub App Setup
-
-1. Go to GitHub Settings → Developer settings → GitHub Apps
-2. Create new GitHub App
-3. Note your **App ID**
-4. Generate and download **Private Key** (.pem file)
-5. Install app to your account/organization
-6. Note your **Installation ID** from the URL
-
-## 🤝 Contributing
-
-This is a production-ready system. Future enhancements:
-
-- [ ] AI-powered profile analysis (Phase 2)
-- [ ] Redis caching for multi-instance deployments
-- [ ] Rate limiting middleware
-- [ ] Prometheus metrics
-- [ ] GraphQL API
-
-## 📝 License
-
-MIT License - See LICENSE file for details
-
-## 🆘 Troubleshooting
-
-### Server won't start
-
-**Error**: `Settings object has no attribute 'GITHUB_APP_ID'`
-
-**Solution**: Ensure `.env` file exists and contains all required variables.
-
-### Token exchange failed
-
-**Error**: `Token exchange failed (401)`
-
-**Solution**: Check your Private Key is complete and includes BEGIN/END markers.
-
-### User not found
-
-**Error**: `User 'username' not found`
-
-**Solution**: Verify the GitHub username exists and is spelled correctly.
-
-### Cache issues
-
-**Solution**: Clear cache manually:
-```bash
-rm -rf cache/*.json  # Linux/Mac
-del /Q cache\*.json  # Windows
-```
+**Just update `.env` and restart!** No code changes needed.
 
 ---
 
-**Built with ❤️ using FastAPI, GitHub App, and modern Python async/await**
+## 📁 Data Storage
+
+### JSON Storage
+All analyzed profiles auto-save to `db/` folder:
+
+```
+db/
+├── torvalds.json
+├── gvanrossum.json
+└── ...
+```
+
+Each file contains:
+- Complete user profile
+- All repositories
+- **ALL markdown files** with full content
+- Metadata (timestamp, API calls)
+
+---
+
+## 🎯 Use Cases
+
+### For Recruiters
+- **Skill Assessment** - Language proficiency, framework expertise
+- **Code Quality** - Documentation, best practices
+- **Activity Tracking** - Recent commits, consistency
+- **Hiring Scores** - AI-powered recommendations (/10)
+
+### For  AI Matching
+- **Complete Data Export** - All repos, languages, READMEs, markdown
+- **JSON Format** - Easy integration with AI systems
+- **Structured Reports** - Parse scores, skills, recommendations
+
+### For Developers
+- **Portfolio Analysis** - See how your profile looks to recruiters
+- **Skill Mapping** - Identify technology gaps
+- **Project Insights** - Understand your strengths
+
+---
+
+## ⚙️ Configuration Reference
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `GITHUB_APP_ID` | ✅ Yes | - | GitHub App ID |
+| `GITHUB_PRIVATE_KEY` | ✅ Yes | - | GitHub App private key |
+| `GITHUB_INSTALLATION_ID` | ✅ Yes | - | Installation ID |
+| `GROQ_API_KEY` | For AI | - | GROQ API key (primary) |
+| `OPENAI_API_KEY` | For AI | - | OpenAI API key |
+| `GOOGLE_API_KEY` | For AI | - | Gemini API key |
+| `LLM_MODEL` | No | llama-3.3-70b-versatile | Model name |
+| `LLM_TEMPERATURE` | No | 0.1 | Response creativity |
+| `LLM_MAX_TOKENS` | No | 2048 | Max response length |
+| `PORT` | No | 8000 | Server port |
+| `MAX_REPOS_PER_USER` | No | 15 | Repos to analyze |
+| `CACHE_TTL_SECONDS` | No | 86400 | Cache duration |
+
+---
+
+## 📊 Performance
+
+- **Analysis Speed**: ~1.5-2 seconds (uncached)
+- **Cached Response**: <20ms
+- **Capacity**: 112K users/month per server
+- **AI Report**: 2-5 seconds (GROQ)
+- **Rate Limit**: 5,000 req/hour (GitHub App)
+
+---
+
+## 🛡️ Production Deployment
+
+### Docker (Recommended)
+
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY src/ ./src/
+ENV PORT=8000
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### PM2 (Node Process Manager)
+
+```bash
+# Install PM2
+npm install -g pm2
+
+# Start server
+pm2 start "python src/main.py" --name github-analyzer
+
+# Auto-restart on reboot
+pm2 startup
+pm2 save
+```
+
+### Environment Variables in Production
+- Use secrets management (AWS Secrets Manager, Azure Key Vault)
+- Never commit `.env` to git
+- Rotate API keys regularly
+
+---
+
+## 🔧 Development
+
+### Project Structure
+```
+Git-user_data-analyser/
+├── src/
+│   ├── core/              # Config, exceptions
+│   ├── models/            # Pydantic schemas
+│   ├── services/          # Business logic
+│   ├── api/               # Routes
+│   ├── utils/             # Helpers
+│   └── main.py            # Entry point
+├── db/                    # JSON storage
+├── cache/                 # API cache
+├── requirements.txt       # Dependencies
+├── .env                   # Config (gitignored)
+├── .env.example           # Config template
+└── README.md              # This file
+```
+
+### Adding New Features
+1. **Models**: Add to `models/schemas.py`
+2. **Services**: Create in `services/`
+3. **Routes**: Add to `api/routes.py`
+4. **Config**: Update `core/config.py`
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing`)
+5. Open Pull Request
+
+---
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file
+
+---
+
+## 🆘 Support
+
+### Common Issues
+
+**Q: "Field required" error on startup**
+- A: Check `.env` file exists and has all required fields
+
+**Q: AI reports return template mode**
+- A: Add `GROQ_API_KEY` (or OPENAI/GOOGLE key) to `.env`
+
+**Q: No markdown files in response**
+- A: Repos might not have additional `.md` files (only README)
+
+**Q: How to change LLM provider?**
+- A: Update `GROQ_API_KEY`, `OPENAI_API_KEY`, or `GOOGLE_API_KEY` in `.env`
+
+### Docs
+- **API Docs**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
+
+---
+
+## 🎉 Credits
+
+Built with:
+- [Fast API](https://fastapi.tiangolo.com/) - Modern Python web framework
+- [GROQ](https://groq.com/) - Fast AI inference
+- [Pydantic](https://pydantic.dev/) - Data validation
+- [GitHub API](https://docs.github.com/en/rest) - Data source
+
+---
+
+**Made with ❤️ for modern hiring teams**
+#   R e p o I n t e l -  
+ 

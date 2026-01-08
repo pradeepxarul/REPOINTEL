@@ -6,7 +6,7 @@ from typing import Optional, Dict, Any
 
 # Import will be available after config is created
 try:
-    from config import settings
+    from core.config import settings
     cache_ttl = settings.CACHE_TTL_SECONDS
 except ImportError:
     cache_ttl = 86400  # Default 24 hours

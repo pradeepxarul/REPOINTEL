@@ -4,7 +4,7 @@ import jwt
 import time
 import asyncio
 from typing import Dict, List, Optional, Any
-from config import settings
+from core.config import settings
 from utils.logger import logger
 from datetime import datetime
 
@@ -219,54 +219,163 @@ class GitHubService:
             logger.warning(f"❌ Error getting README for {owner}/{repo}: {e}")
             return None
     
-    async def _get_last_commit_date(self, owner: str, repo: str) -> Optional[str]:
+    async def _get_repo_tree(self, owner: str, repo: str, default_branch: str = 'main') -> List[Dict[str, Any]]:
         """
-        Get last commit date for repository
+        Get repository file tree to find all files
         
-        GET /repos/{owner}/{repo}/commits?per_page=1
+        GET /repos/{owner}/{repo}/git/trees/{branch}?recursive=1
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name  
+            default_branch: Default branch (main/master)
         
         Returns:
-            ISO timestamp of last commit, or None if not found
+            List of file objects with path, type, size
         """
         await self.ensure_token()
         
-        url = f"https://api.github.com/repos/{owner}/{repo}/commits?per_page=1"
-        headers = {"Authorization": f"token {self.token}"}
+        # Try main branch first, fallback to master if not found
+        for branch in [default_branch, 'master' if default_branch == 'main' else 'main']:
+            url = f"https://api.github.com/repos/{owner}/{repo}/git/trees/{branch}?recursive=1"
+            headers = {"Authorization": f"token {self.token}"}
+            
+            try:
+                async with self.session.get(url, headers=headers) as resp:
+                    if resp.status == 200:
+                        data = await resp.json()
+                        return data.get('tree', [])
+            except Exception as e:
+                logger.warning(f"⚠️ Error getting tree for {owner}/{repo} on {branch}: {e}")
+                continue
+        
+        return []
+    
+    async def _fetch_markdown_content(self, owner: str, repo: str, file_path: str, max_size_kb: int = 100) -> Optional[Dict[str, Any]]:
+        """
+        Fetch content of a single markdown file
+        
+        GET /repos/{owner}/{repo}/contents/{file_path}
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            file_path: Path to markdown file
+            max_size_kb: Maximum file size to fetch (default 100KB)
+        
+        Returns:
+            Dict with filename, path, content, length_chars or None if error/too large
+        """
+        await self.ensure_token()
+        
+        url = f"https://api.github.com/repos/{owner}/{repo}/contents/{file_path}"
+        headers = {
+            "Authorization": f"token {self.token}",
+            "Accept": "application/vnd.github.v3.raw"  # Get raw content
+        }
         
         try:
             async with self.session.get(url, headers=headers) as resp:
                 if resp.status == 200:
-                    data = await resp.json()
-                    if data and len(data) > 0:
-                        return data[0]['commit']['author']['date']
+                    content = await resp.text()
+                    
+                    # Check size limit (100KB default)
+                    if len(content) > max_size_kb * 1024:
+                        logger.warning(f"⚠️ Skipping large markdown file {file_path} ({len(content)} bytes)")
+                        return None
+                    
+                    return {
+                        "filename": file_path.split('/')[-1],
+                        "path": file_path,
+                        "content": content,  # COMPLETE content, no truncation
+                        "length_chars": len(content)
+                    }
                 return None
-        except asyncio.TimeoutError:
-            logger.warning(f"⏱️ Timeout getting commits for {owner}/{repo}")
-            return None
         except Exception as e:
-            logger.warning(f"❌ Error getting commits for {owner}/{repo}: {e}")
+            logger.warning(f"❌ Error fetching {file_path}: {e}")
             return None
+    
+    async def _get_all_markdown_files(self, owner: str, repo: str, default_branch: str = 'main', max_files: int = 20) -> List[Dict[str, Any]]:
+        """
+        Find and extract ALL markdown files from repository
+        
+        Process:
+        1. Get repository file tree
+        2. Filter for .md files (exclude README.md as it's fetched separately)
+        3. Fetch content for each markdown file in parallel
+        4. Return complete list with full content
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            default_branch: Default branch name
+            max_files: Maximum number of markdown files to extract (default 20)
+        
+        Returns:
+            List of markdown file objects with complete content
+        """
+        # Step 1: Get file tree
+        tree = await self._get_repo_tree(owner, repo, default_branch)
+        
+        if not tree:
+            return []
+        
+        # Step 2: Filter for .md files (case-insensitive, exclude README.md)
+        md_files = [
+            item for item in tree
+            if item.get('type') == 'blob' 
+            and item.get('path', '').lower().endswith('.md')
+            and item.get('path', '').lower() not in ['readme.md', 'readme.markdown']
+        ]
+        
+        # Limit number of files
+        md_files = md_files[:max_files]
+        
+        if not md_files:
+            logger.info(f"📄 No additional markdown files found in {owner}/{repo}")
+            return []
+        
+        logger.info(f"📄 Found {len(md_files)} markdown files in {owner}/{repo}")
+        
+        # Step 3: Fetch content for all markdown files in parallel
+        fetch_tasks = [
+            self._fetch_markdown_content(owner, repo, item['path'])
+            for item in md_files
+        ]
+        
+        results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+        
+        # Filter out None values and exceptions
+        valid_files = [
+            r for r in results
+            if r is not None and not isinstance(r, Exception)
+        ]
+        
+        logger.info(f"✅ Successfully fetched {len(valid_files)} markdown files from {owner}/{repo}")
+        return valid_files
+
     
     async def _analyze_single_repo(self, repo_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Analyze single repository: get languages + README + last commit in parallel
+        Analyze single repository: get languages + README + ALL markdown files in parallel
         
         Args:
             repo_data: Repository object from GitHub API
         
         Returns:
-            Enriched repository data with languages, README, and commit activity
+            Enriched repository data with languages, README, markdown files, and commit activity
         """
         owner = repo_data['owner']['login']
         repo = repo_data['name']
+        default_branch = repo_data.get('default_branch', 'main')
         
-        # Fetch languages, README, and last commit in parallel (3 calls per repo)
+        # Fetch languages, README, and ALL markdown files in parallel
         lang_task = self._get_repo_languages(owner, repo)
         readme_task = self._get_repo_readme(owner, repo)
-        commit_task = self._get_last_commit_date(owner, repo)
+        markdown_task = self._get_all_markdown_files(owner, repo, default_branch)
         
-        languages, readme, last_commit_date = await asyncio.gather(
-            lang_task, readme_task, commit_task
+        languages, readme, markdown_files = await asyncio.gather(
+            lang_task, readme_task, markdown_task
         )
         
         # Calculate language percentages
@@ -279,25 +388,26 @@ class GitHubService:
         else:
             percentages = {}
         
-        # Calculate days since last commit
+        # Calculate days since last commit using pushed_at (already in repo_data!)
+        pushed_at = repo_data.get('pushed_at')
         days_since_commit = None
-        if last_commit_date:
+        if pushed_at:
             try:
-                from datetime import datetime
-                commit_dt = datetime.fromisoformat(last_commit_date.replace('Z', '+00:00'))
-                now = datetime.now(commit_dt.tzinfo)
-                days_since_commit = (now - commit_dt).days
+                from datetime import datetime, timezone
+                commit_dt = datetime.fromisoformat(pushed_at.replace('Z', '+00:00'))
+                now = datetime.now(timezone.utc)
+                days_since_commit = max(0, (now - commit_dt).days)
             except:
                 pass
         
-        # Build enriched repo data with ALL popularity and activity metrics
+        # Build enriched repo data with ALL metrics
         return {
             "name": repo_data['name'],
             "full_name": repo_data['full_name'],
             "description": repo_data.get('description'),
             "html_url": repo_data['html_url'],
             
-            # Popularity metrics (already in repo_data!)
+            # Popularity metrics (from repo_data)
             "stargazers_count": repo_data.get('stargazers_count', 0),
             "forks_count": repo_data.get('forks_count', 0),
             "watchers_count": repo_data.get('watchers_count', 0),
@@ -315,10 +425,10 @@ class GitHubService:
             # Timestamps
             "created_at": repo_data.get('created_at', ''),
             "updated_at": repo_data.get('updated_at', ''),
-            "pushed_at": repo_data.get('pushed_at'),
+            "pushed_at": pushed_at,
             
-            # Commit activity (NEW!)
-            "last_commit_date": last_commit_date,
+            # Commit activity (using pushed_at - NO extra API call!)
+            "last_commit_date": pushed_at,  # Same as pushed_at
             "days_since_last_commit": days_since_commit,
             
             # Language breakdown
@@ -332,7 +442,10 @@ class GitHubService:
                 "content": readme,
                 "length_chars": len(readme) if readme else 0,
                 "has_readme": bool(readme)
-            } if readme else None
+            } if readme else None,
+            
+            # ALL Markdown Files (COMPLETE content extraction!)
+            "markdown_files": markdown_files  # List of all .md files with full content
         }
     
     async def analyze_profile(self, username: str) -> Dict[str, Any]:
@@ -341,11 +454,12 @@ class GitHubService:
         
         Flow:
         1. Get user profile (1 API call)
-        2. Get user repositories (1 API call)
-        3. For each repo, get languages + README + last commit (3N API calls in parallel)
+        2. Get user repositories (1 API call)  
+        3. For each repo, get languages + README (2N API calls in parallel)
+        4. Use pushed_at from repo data for commit activity (no extra calls!)
         
-        Total API calls: 2 + (3 × N repos) ≈ 47 calls for 15 repos
-        Expected time: ~1.5 seconds
+        Total API calls: 2 + (2 × N repos) = 32 calls for 15 repos
+        Expected time: ~1.2 seconds
         
         Args:
             username: GitHub username
@@ -361,7 +475,8 @@ class GitHubService:
         
         profile, repos = await asyncio.gather(profile_task, repos_task)
         
-        # Step 3: Analyze all repos in parallel (languages + READMEs + commits)
+        # Step 3: Analyze all repos in parallel (languages + READMEs)
+        # Note: pushed_at for commit activity already in repo data - no extra calls needed!
         repo_tasks = [
             self._analyze_single_repo(repo)
             for repo in repos
@@ -375,7 +490,7 @@ class GitHubService:
         ]
         
         end_time = time.time()
-        api_calls = 2 + (len(repos) * 3)  # profile + repos + (languages + readme + commits) per repo
+        api_calls = 2 + (len(repos) * 2)  # profile + repos + (languages + readme) per repo
         
         return {
             "profile": profile,

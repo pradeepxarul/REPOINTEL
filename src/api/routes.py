@@ -4,10 +4,11 @@ import uuid
 from datetime import datetime
 import time
 
-from config import settings
-from models import AnalyzeRequest, AnalyzeResponse, UserData, RepositoryData, LanguageStats, ReadmeInfo, PerformanceMetrics
-from github_service import GitHubService
-from cache_service import get_cache, set_cache, clear_all_cache
+from core.config import settings
+from models.schemas import AnalyzeRequest, AnalyzeResponse, ReportRequest, UserData, RepositoryData, LanguageStats, ReadmeInfo, PerformanceMetrics
+from services.github_service import GitHubService
+from services.cache_service import get_cache, set_cache, clear_all_cache
+from services.storage_service import storage_service
 from utils.validators import normalize_github_input
 from utils.logger import logger
 
@@ -119,6 +120,13 @@ async def analyze_profile(request: AnalyzeRequest) -> AnalyzeResponse:
         except Exception as e:
             logger.warning(f"[{request_id}] Cache write error: {e}")
         
+        # Step 6: Save to JSON storage (NEW!)
+        try:
+            storage_service.save_analysis(username, response_data)
+            logger.info(f"[{request_id}] 📁 Saved to db/{username}.json")
+        except Exception as e:
+            logger.warning(f"[{request_id}] Storage write error: {e}")
+        
         logger.info(f"[{request_id}] ✅ Analysis complete in {int(total_time * 1000)}ms")
         
         return AnalyzeResponse(**response_data)
@@ -171,3 +179,87 @@ async def clear_cache():
     except Exception as e:
         logger.error(f"Cache clear error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/reports/generate")
+async def generate_candidate_report(request: ReportRequest):
+    """
+    **Generate AI-Powered Candidate Report**
+    
+    Creates comprehensive hiring assessment using AI analysis of GitHub profile.
+    
+    **📊 Report Includes:**
+    - Executive summary
+    - Technical skills (languages, frameworks, scores /10)
+    - Code quality analysis
+    - Activity patterns
+    - Project analysis
+    - Hiring recommendations
+    
+    **⚡ Performance:**
+    - With stored data: ~2-3 seconds
+    - Fresh fetch: ~8-12 seconds
+    """
+    from services.llm_service import llm_service
+    
+    request_id = str(uuid.uuid4())[:8]
+    
+    try:
+        username = request.username
+        report_type = request.report_type
+        use_stored = request.use_stored
+        
+        logger.info(f"[{request_id}] Generating {report_type} report for {username}")
+        
+        # Step 1: Get data (from storage or fresh analysis)
+        data = None
+        data_source = "unknown"
+        
+        if use_stored:
+            # Try to load from storage first
+            stored = storage_service.load_analysis(username)
+            if stored:
+                data = stored.get("data")
+                data_source = "stored_json"
+                logger.info(f"[{request_id}] Using stored data")
+        
+        # If no stored data, analyze fresh
+        if not data:
+            logger.info(f"[{request_id}] No stored data, analyzing fresh...")
+            async with GitHubService() as github_service:
+                analysis = await github_service.analyze_profile(username)
+            
+            # Build data structure
+            user_data = {
+                "user": analysis["profile"],
+                "repositories": analysis["repositories"]
+            }
+            data = user_data
+            data_source = "fresh_analysis"
+            
+            # Save to storage for future use
+            try:
+                storage_service.save_analysis(username, {"data": data})
+                logger.info(f"[{request_id}] ✅ Saved to db/{username}.json")
+            except Exception as e:
+                logger.warning(f"[{request_id}] Failed to save: {e}")
+        
+        # Step 2: Generate report with LLM
+        logger.info(f"[{request_id}] Generating report with LLM...")
+        report = llm_service.generate_report(data, report_type)
+        
+        # Add metadata
+        report["request_id"] = request_id
+        report["data_source"] = data_source
+        
+        logger.info(f"[{request_id}] ✅ Report generated successfully")
+        
+        return report
+        
+    except ValueError as e:
+        logger.error(f"[{request_id}] Validation error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    except Exception as e:
+        logger.error(f"[{request_id}] Report generation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Report generation failed: {str(e)}")

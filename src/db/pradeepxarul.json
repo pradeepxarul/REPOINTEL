@@ -1,0 +1,322 @@
+{
+  "username": "pradeepxarul",
+  "analyzed_at": "2026-01-02T09:38:09.709868Z",
+  "data": {
+    "data": {
+      "user": {
+        "login": "pradeepxarul",
+        "id": 152048697,
+        "node_id": "U_kgDOCRAUOQ",
+        "avatar_url": "https://avatars.githubusercontent.com/u/152048697?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/pradeepxarul",
+        "html_url": "https://github.com/pradeepxarul",
+        "followers_url": "https://api.github.com/users/pradeepxarul/followers",
+        "following_url": "https://api.github.com/users/pradeepxarul/following{/other_user}",
+        "gists_url": "https://api.github.com/users/pradeepxarul/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/pradeepxarul/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/pradeepxarul/subscriptions",
+        "organizations_url": "https://api.github.com/users/pradeepxarul/orgs",
+        "repos_url": "https://api.github.com/users/pradeepxarul/repos",
+        "events_url": "https://api.github.com/users/pradeepxarul/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/pradeepxarul/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false,
+        "name": "Pradeep Arul",
+        "company": null,
+        "blog": "",
+        "location": "India",
+        "email": null,
+        "hireable": null,
+        "bio": "Student \r\nIT Enthusiast\r\nSkills: Python | Java | C | React | Javascript",
+        "twitter_username": null,
+        "public_repos": 7,
+        "public_gists": 0,
+        "followers": 0,
+        "following": 1,
+        "created_at": "2023-11-26T04:30:17Z",
+        "updated_at": "2026-01-02T07:58:13Z"
+      },
+      "repositories": [
+        {
+          "name": "REPOINTEL",
+          "full_name": "pradeepxarul/REPOINTEL",
+          "description": null,
+          "html_url": "https://github.com/pradeepxarul/REPOINTEL",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 16,
+          "language": "Python",
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2025-12-31T10:02:35Z",
+          "updated_at": "2025-12-31T12:16:39Z",
+          "pushed_at": "2025-12-31T12:16:35Z",
+          "last_commit_date": "2025-12-31T12:16:35Z",
+          "days_since_last_commit": 1,
+          "languages": {
+            "raw_bytes": {
+              "Python": 33067
+            },
+            "percentages": {
+              "Python": 100.0
+            }
+          },
+          "readme": {
+            "content": "# 🚀 GitHub User Data Analyzer\n\nProduction-ready GitHub profile analyzer using **GitHub App authentication** with parallel API calls, intelligent caching, and comprehensive data extraction.\n\n## ✨ Features\n\n- 🔐 **GitHub App Authentication** - Secure JWT-based authentication\n- ⚡ **Parallel API Calls** - Up to 32 concurrent requests (~1.2s response)\n- 💾 **Intelligent Caching** - 24-hour TTL, <20ms cached response\n- 📊 **Complete Data Extraction** - Profile, repositories, languages, READMEs\n- 🎯 **Production-Ready** - Error handling, logging, validation\n- 📈 **High Capacity** - 112K users/month per server\n- 📝 **Interactive Docs** - Swagger UI at `/docs`\n\n## 🎯 Quick Start (5 Minutes)\n\n### Prerequisites\n\n- Python 3.9+\n- GitHub App credentials (App ID, Installation ID, Private Key)\n\n### 1. Clone & Navigate\n\n```bash\ncd d:\\pp\\Tringapps\\Git-user_data-analyser\n```\n\n### 2. Create Virtual Environment\n\n```bash\n# Create virtual environment\npython -m venv venv\n\n# Activate (Windows)\nvenv\\Scripts\\activate\n\n# Activate (Linux/Mac)\nsource venv/bin/activate\n```\n\n### 3. Install Dependencies\n\n```bash\npip install -r requirements.txt\n```\n\n### 4. Configure Environment\n\nCreate `.env` file with your GitHub App credentials:\n\n```bash\n# Copy example\ncopy .env.example .env\n\n# Edit .env with your credentials\n```\n\nYour `.env` should look like:\n\n```env\n# GitHub App Configuration\nGITHUB_APP_ID=51234567\nGITHUB_PRIVATE_KEY=\"-----BEGIN RSA PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG...your private key content...\n-----END RSA PRIVATE KEY-----\"\nGITHUB_INSTALLATION_ID=101994286\n\n# Service Configuration\nMAX_REPOS_PER_USER=15\nCACHE_TTL_SECONDS=86400\nAPI_TIMEOUT_SECONDS=10\nLOG_LEVEL=INFO\nPORT=8000\nENVIRONMENT=production\n```\n\n### 5. Run Server\n\n```bash\n# Navigate to src directory\ncd src\n\n# Start server\npython main.py\n```\n\nYou should see:\n\n```\n============================================================\n🚀 GitHub User Data Analyzer\n📍 Installation ID: 101994286\n⚙️  Environment: production\n📊 Capacity: 112,000 users/month\n⏱️  Latency: <1.5 seconds per analysis\n🔗 Swagger Docs: http://localhost:8000/docs\n============================================================\nINFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)\n```\n\n### 6. Test API\n\n**Open Swagger UI:**\n```\nhttp://localhost:8000/docs\n```\n\n**Test with cURL:**\n\n```bash\n# Health check\ncurl http://localhost:8000/api/v1/health\n\n# Analyze profile\ncurl -X POST http://localhost:8000/api/v1/analyze \\\n  -H \"Content-Type: application/json\" \\\n  -d \"{\\\"github_input\\\": \\\"torvalds\\\"}\"\n```\n\n## 📖 API Documentation\n\n### POST /api/v1/analyze\n\nAnalyze a GitHub user profile.\n\n**Request:**\n```json\n{\n  \"github_input\": \"torvalds\"\n}\n```\n\nOR with URL:\n```json\n{\n  \"github_input\": \"https://github.com/torvalds\"\n}\n```\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"request_id\": \"a1b2c3d4\",\n  \"timestamp\": \"2025-12-31T10:27:00.000Z\",\n  \"user\": {\n    \"login\": \"torvalds\",\n    \"name\": \"Linus Torvalds\",\n    \"bio\": \"Linux kernel creator\",\n    \"location\": \"Portland, OR\",\n    \"followers\": 250000,\n    \"following\": 50,\n    \"public_repos\": 5,\n    \"created_at\": \"2005-04-15T00:00:00Z\",\n    \"updated_at\": \"2025-12-31T10:00:00Z\",\n    \"avatar_url\": \"https://avatars.githubusercontent.com/u/1024025\",\n    \"blog\": \"https://www.kernel.org\",\n    \"company\": \"Linux Foundation\"\n  },\n  \"repositories\": [\n    {\n      \"name\": \"linux\",\n      \"full_name\": \"torvalds/linux\",\n      \"description\": \"Linux kernel source tree\",\n      \"html_url\": \"https://github.com/torvalds/linux\",\n      \"stargazers_count\": 180000,\n      \"forks_count\": 60000,\n      \"language\": \"C\",\n      \"topics\": [\"linux\", \"kernel\"],\n      \"created_at\": \"2005-04-15T00:00:00Z\",\n      \"updated_at\": \"2025-12-31T10:00:00Z\",\n      \"languages\": {\n        \"raw_bytes\": {\n          \"C\": 123456789,\n          \"Assembly\": 8700000\n        },\n        \"percentages\": {\n          \"C\": 93.4,\n          \"Assembly\": 6.6\n        }\n      },\n      \"readme\": {\n        \"content\": \"# Linux Kernel\\n\\nThis is the Linux kernel...\",\n        \"length_chars\": 2145,\n        \"has_readme\": true\n      }\n    }\n  ],\n  \"total_repos_analyzed\": 5,\n  \"total_api_calls\": 32,\n  \"performance\": {\n    \"github_api_latency_ms\": 850,\n    \"processing_latency_ms\": 200,\n    \"total_latency_ms\": 1050,\n    \"cache_hit\": false,\n    \"cache_ttl_remaining_seconds\": 86400\n  }\n}\n```\n\n### GET /api/v1/health\n\nHealth check endpoint.\n\n**Response:**\n```json\n{\n  \"status\": \"healthy\",\n  \"timestamp\": \"2025-12-31T10:27:00.000Z\",\n  \"installation_id\": 101994286,\n  \"environment\": \"production\",\n  \"version\": \"1.0.0\",\n  \"capacity\": \"112K users/month\",\n  \"rate_limit\": \"5000 requests/hour\"\n}\n```\n\n### POST /api/v1/cache/clear\n\nClear all cached data (admin only).\n\n**Response:**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"All cache cleared\",\n  \"timestamp\": \"2025-12-31T10:27:00.000Z\"\n}\n```\n\n## 🏗️ Architecture\n\n```\nsrc/\n├── main.py              # FastAPI app entry point\n├── config.py            # Settings loader (Pydantic)\n├── models.py            # Request/response schemas\n├── cache_service.py     # File-based cache with TTL\n├── github_service.py    # GitHub App client (JWT auth)\n├── api/\n│   └── routes.py        # API endpoints\n└── utils/\n    ├── validators.py    # Input validation\n    └── logger.py        # Logging setup\n```\n\n## 🔧 Configuration\n\nAll settings are loaded from `.env` file:\n\n| Variable | Description | Default |\n|----------|-------------|---------|\n| `GITHUB_APP_ID` | Your GitHub App ID | Required |\n| `GITHUB_PRIVATE_KEY` | Your GitHub App private key | Required |\n| `GITHUB_INSTALLATION_ID` | Installation ID | Required |\n| `MAX_REPOS_PER_USER` | Max repos to analyze | 15 |\n| `CACHE_TTL_SECONDS` | Cache expiration time | 86400 (24h) |\n| `API_TIMEOUT_SECONDS` | API request timeout | 10 |\n| `LOG_LEVEL` | Logging level | INFO |\n| `PORT` | Server port | 8000 |\n| `ENVIRONMENT` | Environment name | production |\n\n## 🚀 Performance Metrics\n\n- **API Calls per Analysis**: 2 + (2 × N repos) = ~32 calls for 15 repos\n- **Response Time** (uncached): ~1.2 seconds\n- **Response Time** (cached): <20ms\n- **Cache TTL**: 24 hours (configurable)\n- **Rate Limit**: 5,000 requests/hour (GitHub App)\n- **Monthly Capacity**: 112,000 users/month per server\n\n## 🛠️ Development\n\n### Run in Development Mode\n\n```bash\n# Set environment to development in .env\nENVIRONMENT=development\n\n# Run with auto-reload\nuvicorn main:app --reload --port 8000\n```\n\n### View Interactive Docs\n\n- **Swagger UI**: http://localhost:8000/docs\n- **ReDoc**: http://localhost:8000/redoc\n\n### Clear Cache\n\n```bash\ncurl -X POST http://localhost:8000/api/v1/cache/clear\n```\n\n## 📦 Deployment\n\n### Option 1: Railway (Recommended)\n\n```bash\n# Install Railway CLI\nnpm install -g railway\n\n# Login\nrailway login\n\n# Initialize project\nrailway init\n\n# Add environment variables in Railway dashboard\n# Then deploy\ngit push railway main\n```\n\n### Option 2: Heroku\n\n```bash\n# Login\nheroku login\n\n# Create app\nheroku create your-app-name\n\n# Set environment variables\nheroku config:set GITHUB_APP_ID=51234567\nheroku config:set GITHUB_PRIVATE_KEY=\"...\"\nheroku config:set GITHUB_INSTALLATION_ID=101994286\n\n# Deploy\ngit push heroku main\n```\n\n### Option 3: Docker\n\n```dockerfile\nFROM python:3.11-slim\n\nWORKDIR /app\n\nCOPY requirements.txt .\nRUN pip install --no-cache-dir -r requirements.txt\n\nCOPY src/ src/\nCOPY .env .\n\nEXPOSE 8000\n\nCMD [\"python\", \"src/main.py\"]\n```\n\n```bash\ndocker build -t github-analyzer .\ndocker run -p 8000:8000 github-analyzer\n```\n\n## 🔐 Security\n\n- ✅ **GitHub App Authentication** - Secure JWT-based auth\n- ✅ **Environment Variables** - Credentials stored in `.env` (gitignored)\n- ✅ **Input Validation** - Username format validation\n- ✅ **Rate Limiting** - Respects GitHub API limits\n- ✅ **Error Handling** - Comprehensive error responses\n\n## 📊 GitHub App Setup\n\n1. Go to GitHub Settings → Developer settings → GitHub Apps\n2. Create new GitHub App\n3. Note your **App ID**\n4. Generate and download **Private Key** (.pem file)\n5. Install app to your account/organization\n6. Note your **Installation ID** from the URL\n\n## 🤝 Contributing\n\nThis is a production-ready system. Future enhancements:\n\n- [ ] AI-powered profile analysis (Phase 2)\n- [ ] Redis caching for multi-instance deployments\n- [ ] Rate limiting middleware\n- [ ] Prometheus metrics\n- [ ] GraphQL API\n\n## 📝 License\n\nMIT License - See LICENSE file for details\n\n## 🆘 Troubleshooting\n\n### Server won't start\n\n**Error**: `Settings object has no attribute 'GITHUB_APP_ID'`\n\n**Solution**: Ensure `.env` file exists and contains all required variables.\n\n### Token exchange failed\n\n**Error**: `Token exchange failed (401)`\n\n**Solution**: Check your Private Key is complete and includes BEGIN/END markers.\n\n### User not found\n\n**Error**: `User 'username' not found`\n\n**Solution**: Verify the GitHub username exists and is spelled correctly.\n\n### Cache issues\n\n**Solution**: Clear cache manually:\n```bash\nrm -rf cache/*.json  # Linux/Mac\ndel /Q cache\\*.json  # Windows\n```\n\n---\n\n**Built with ❤️ using FastAPI, GitHub App, and modern Python async/await**\n",
+            "length_chars": 9006,
+            "has_readme": true
+          },
+          "markdown_files": [
+            {
+              "filename": "ENHANCEMENTS.md",
+              "path": "ENHANCEMENTS.md",
+              "content": "# 🎉 Enhanced GitHub User Data Analyzer - 98% Complete!\n\n## ✅ What Was Added\n\n### 1. Commit Activity Tracking\n- **last_commit_date**: ISO timestamp of most recent commit\n- **days_since_last_commit**: Days since last code push\n- Shows coding frequency and activity level\n\n### 2. Popularity Metrics  \n- **watchers_count**: Repository watchers\n- **open_issues_count**: Active issues count\n- Already had: stars and forks\n\n### 3. Repository Features\n- **has_wiki**: Documentation quality signal\n- **has_projects**: Project management usage\n\n## 📊 New Response Fields\n\nEach repository now includes:\n\n```json\n{\n  \"name\": \"repo-name\",\n  \"stargazers_count\": 250,        // ✅ Already had\n  \"forks_count\": 45,               // ✅ Already had\n  \"watchers_count\": 180,           // 🆕 NEW!\n  \"open_issues_count\": 12,         // 🆕 NEW!\n  \"has_wiki\": true,                // 🆕 NEW!\n  \"has_projects\": false,           // 🆕 NEW!\n  \"last_commit_date\": \"2025-12-30T14:15:00Z\",  // 🆕 NEW!\n  \"days_since_last_commit\": 1,     // 🆕 NEW!\n  \"languages\": {...},\n  \"readme\": {...}\n}\n```\n\n## 🚀 Performance Impact\n\n- **API Calls**: 32 → 47 per analysis (15 repos)\n- **Response Time**: ~1.2s → ~1.5s\n- **Data Quality**: 85% → **98%** ✅\n\n## 🎯 What This Enables\n\n### For Hiring/Matching:\n1. **Activity Score**: Recent commits = Active developer\n2. **Popularity Score**: Stars + Forks = Quality code\n3. **Collaboration**: Open issues = Team communication\n4. **Professionalism**: Wiki/Projects = Organized workflow\n\n### Sample AI Prompts (Now Possible):\n```\n\"Find developers with:\n- Languages: Python 80%+\n- Activity: Commits in last 7 days\n- Popularity: 100+ stars on main project\n- Collaboration: 5+ open issues managed\"\n```\n\n## 🔧 Changes Made\n\n1. **github_service.py**:\n   - Added `_get_last_commit_date()` method\n   - Enhanced `_analyze_single_repo()` to fetch 3 items in parallel\n   - Updated API call count: 2 + (3 × N repos)\n\n2. **models.py**:\n   - Added 6 new fields to `RepositoryData`\n   - Organized fields by category (popularity, metadata, activity)\n\n3. **Performance**:\n   - Still uses parallel API calls (47 concurrent)\n   - Smart error handling (timeouts don't break analysis)\n\n## ✅ Ready to Test\n\nRestart server and test with any GitHub user:\n```json\nPOST /api/v1/analyze\n{\n  \"github_input\": \"torvalds\"\n}\n```\n\n**Your API is now 98% perfect for hiring decisions!** 🎊\n",
+              "length_chars": 2344
+            }
+          ]
+        },
+        {
+          "name": "RAG_API",
+          "full_name": "pradeepxarul/RAG_API",
+          "description": "Enterprise RAG Service is an AI-powered retrieval system that combines hybrid search (BM25 + Vector + RRF) with LLM-based intent analysis, incremental file management, and cross-encoder reranking. It ensures fast, accurate responses, persistent storage, source attribution, and scalable enterprise-grade document search.",
+          "html_url": "https://github.com/pradeepxarul/RAG_API",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 7919,
+          "language": "Python",
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2025-11-17T06:35:17Z",
+          "updated_at": "2025-11-17T06:36:44Z",
+          "pushed_at": "2025-11-17T06:36:40Z",
+          "last_commit_date": "2025-11-17T06:36:40Z",
+          "days_since_last_commit": 46,
+          "languages": {
+            "raw_bytes": {
+              "Python": 74405
+            },
+            "percentages": {
+              "Python": 100.0
+            }
+          },
+          "readme": {
+            "content": "\n10. **README.md** (Main Documentation)\n - Complete system overview\n - Quick start guide\n - API usage examples\n - Configuration options\n - Architecture explanation\n - Deployment instructions\n - Troubleshooting section\n - Performance optimization tips\n\n---\n\n## 🎯 Key Features Implemented\n\n### 1. Hybrid Retrieval System ⭐\n- ✅ **TF-IDF/BM25 (Keyword Search)**: Via scikit-learn for exact term matching\n- ✅ **Vector Search (Semantic)**: FAISS with sentence-transformers\n- ✅ **Reciprocal Rank Fusion (RRF)**: Combines both methods intelligently\n- ✅ **Formula**: `RRF_score = Σ(1/(k + rank))` where k=60\n- ✅ **Result**: 35% better accuracy than vector-only retrieval\n\n### 2. Intent Classification (NO HARDCODING!) ⭐\n- ✅ **LLM-based analysis**: GPT/Llama analyzes query intent dynamically\n- ✅ **Detects**: factual, comparative, aggregative, explanatory, procedural\n- ✅ **Domain routing**: Automatically identifies resume, technical, policy, general\n- ✅ **Query expansion**: Generates 3-5 semantic variants for better recall\n- ✅ **Metadata filters**: Suggests file_id or domain filters based on query\n- ✅ **Works with ANY document type** - no domain-specific code\n\n### 3. Cross-Encoder Reranking ⭐\n- ✅ **2-stage retrieval**: Fast initial retrieval → Precise reranking\n- ✅ **Model**: `cross-encoder/ms-marco-MiniLM-L-6-v2` (90.9MB)\n- ✅ **Accuracy boost**: 20-35% improvement in top-5 relevance\n- ✅ **Production standard**: Used by Google, Microsoft, Meta\n\n### 4. File Isolation & Management ⭐\n- ✅ **Per-chunk file_id tagging**: Every chunk knows its source file\n- ✅ **Automatic source attribution**: Responses show which files answered\n- ✅ **File registry**: Tracks file_id → filename → chunk indices\n- ✅ **Individual file deletion**: Remove specific files without affecting others\n- ✅ **Incremental append**: Upload 10 files, later 5 more = 15 total (no loss)\n- ✅ **Clear knowledge base**: Complete reset option\n\n### 5. Persistent Storage ⭐\n- ✅ **FAISS index**: Saved to `vectorstore_db/faiss.index`\n- ✅ **Chunks**: Pickled to `vectorstore_db/chunks.pkl`\n- ✅ **Metadata**: Saved to `vectorstore_db/metadata.pkl`\n- ✅ **File registry**: Saved to `vectorstore_db/file_registry.pkl`\n- ✅ **Auto-reload**: On server restart, all data reloaded from disk\n- ✅ **No data loss**: Survives crashes, restarts, deploys\n\n### 6. Document Processing\n- ✅ **6 formats**: PDF (PyMuPDF), TXT, DOCX, CSV, XLSX, JSON\n- ✅ **Semantic chunking**: RecursiveCharacterTextSplitter with 9 separators\n- ✅ **Chunk size**: 512 tokens (optimal for most use cases)\n- ✅ **Chunk overlap**: 100 tokens (20% overlap prevents context loss)\n- ✅ **L2 normalization**: Critical for cosine similarity in FAISS\n- ✅ **Batch processing**: Efficient embedding generation (32 batch size)\n\n### 7. Production FastAPI Service\n- ✅ **RESTful API**: 6 endpoints (upload, query, health, list, delete, clear)\n- ✅ **Swagger UI**: Auto-docs at `/api/v1/docs`\n- ✅ **CORS**: Configured for cross-origin requests\n- ✅ **Validation**: Pydantic v2 models for all requests/responses\n- ✅ **Error handling**: Comprehensive HTTP exceptions\n- ✅ **Logging**: loguru with rotation (500MB files, 10-day retention)\n- ✅ **Health checks**: `/api/v1/health` for monitoring\n- ✅ **File size limits**: 50MB per file (configurable)\n- ✅ **Extension filtering**: Only allowed formats accepted\n\n---\n\n## 🚀 Quick Start Commands\n\n",
+            "length_chars": 3336,
+            "has_readme": true
+          },
+          "markdown_files": [
+            {
+              "filename": "FILE_SUMMARY.md",
+              "path": "FILE_SUMMARY.md",
+              "content": "# 📦 Enterprise RAG System - File Summary\n\n## Complete Production-Ready Hybrid RAG-as-a-Service Implementation\n\n---\n\n## 📂 All Files Created\n\n### Core Application Files\n\n1. **app.py** (Enterprise FastAPI Application - 520 lines)\n   - ✅ Multi-file upload with incremental append (no data loss)\n   - ✅ Hybrid RAG query endpoint with source attribution\n   - ✅ File management (list, delete individual files)\n   - ✅ Knowledge base clearing endpoint\n   - ✅ Health monitoring & metrics\n   - ✅ CORS configuration\n   - ✅ Lifespan management (startup/shutdown hooks)\n   - ✅ Comprehensive error handling with HTTP exceptions\n   - ✅ Pydantic request/response validation\n   - ✅ Auto-generated Swagger UI at `/api/v1/docs`\n   - ✅ Background task management\n   - ✅ Structured logging with loguru\n\n2. **config.py** (Configuration Management - 320 lines)\n   - ✅ Pydantic v2 with `ConfigDict(extra='ignore')` (fixes validation errors)\n   - ✅ Environment variable support via `.env`\n   - ✅ LLM provider configs (Groq, OpenAI, Google Gemini)\n   - ✅ Embedding model settings (all-MiniLM-L6-v2 default)\n   - ✅ **Optimized chunking** (512 size, 100 overlap)\n   - ✅ **Hybrid retrieval settings** (BM25 + Vector enabled)\n   - ✅ FAISS index config (HNSW for 10-100x faster search)\n   - ✅ File upload restrictions (50MB limit, 6 formats)\n   - ✅ Logging configuration (rotation, retention)\n   - ✅ Auto-directory creation (uploads, vectorstore_db, logs)\n   - ✅ Validation functions for startup checks\n   - ✅ Production-ready defaults\n\n3. **requirements.txt** (Python Dependencies - 22 packages)\n   - ✅ LangChain ecosystem (core, community, text-splitters, groq, openai)\n   - ✅ Document processing (pymupdf, python-multipart, unstructured)\n   - ✅ Embeddings & vector store (sentence-transformers, faiss-cpu)\n   - ✅ FastAPI & web (fastapi, uvicorn, pydantic v2, python-dotenv)\n   - ✅ **ML & search** (scikit-learn for TF-IDF/BM25, numpy)\n   - ✅ LLM providers (groq, openai, google-generativeai)\n   - ✅ Utilities (aiofiles, loguru)\n   - ✅ **OPTIMIZED**: No unused dependencies (removed chromadb, python-jose, pypdf)\n\n---\n\n### Source Code (src/ folder)\n\n4. **src/data_loader.py** (Enhanced Document Loader - 180 lines)\n   - ✅ Multi-format support: **PDF (PyMuPDF)**, TXT, DOCX, CSV, XLSX, JSON\n   - ✅ Load from file path or bytes (for API uploads)\n   - ✅ Directory recursive loading\n   - ✅ LangChain `Document` structure with rich metadata\n   - ✅ Per-format error handling with try-except\n   - ✅ Automatic metadata enhancement (page numbers, file type, loader name)\n   - ✅ Temporary file handling for byte streams\n   - ✅ Backward compatibility function\n   - ✅ PyMuPDF for superior PDF parsing\n\n5. **src/embedding.py** (Embedding Pipeline - 140 lines)\n   - ✅ `RecursiveCharacterTextSplitter` with 9 separator levels\n   - ✅ Semantic boundary preservation (paragraphs → sentences → words)\n   - ✅ Configurable chunk size (512) and overlap (100)\n   - ✅ SentenceTransformers integration (all-MiniLM-L6-v2)\n   - ✅ **L2 normalization for cosine similarity** (critical for FAISS)\n   - ✅ Batch embedding generation (32 batch size)\n   - ✅ Progress tracking with loguru\n   - ✅ Rich metadata per chunk (char/word count, index, file info)\n   - ✅ Document processing pipeline with statistics\n\n6. **src/vectorstore.py** (Production Vector Store - 420 lines)\n   - ✅ **HNSW index** (IndexHNSWFlat) for 10-100x faster search\n   - ✅ **Incremental append** - new uploads never overwrite existing\n   - ✅ **File isolation** - every chunk tagged with `file_id`\n   - ✅ Persistent storage (FAISS index + metadata + chunks + file registry)\n   - ✅ Automatic reload on startup (survives server restart)\n   - ✅ Rich metadata store (chunk index, size, word count, timestamp)\n   - ✅ File registry tracking (file_id → chunks mapping)\n   - ✅ Metadata filtering support (by file_id, filename, file_type)\n   - ✅ Remove chunks by index (for file deletion)\n   - ✅ Clear entire knowledge base\n   - ✅ Cosine similarity scoring (1 - L2 distance)\n   - ✅ Statistics & health reporting\n   - ✅ Build vs Add documents logic\n\n7. **src/search.py** (Enterprise RAG Search Engine - 580 lines)\n   - ✅ **HybridRetriever**: BM25 (keyword) + Vector (semantic) + RRF (fusion)\n   - ✅ **TF-IDF/BM25 via scikit-learn**: Keyword matching for exact terms\n   - ✅ **Vector Search**: Semantic similarity via FAISS\n   - ✅ **Reciprocal Rank Fusion (RRF)**: Prevents method dominance\n   - ✅ **QueryIntentAnalyzer**: LLM-based intent classification (NO HARDCODING)\n   - ✅ Dynamic domain detection (resume, technical, policy, general)\n   - ✅ Query expansion (3-5 variants for better recall)\n   - ✅ **CrossEncoderReranker**: 2-stage ranking with ms-marco-MiniLM-L-6-v2\n   - ✅ 20-35% accuracy improvement from reranking\n   - ✅ Context building with source grouping by file\n   - ✅ LLM answer generation with custom prompts\n   - ✅ **Source analysis**: Which files contributed, with scores\n   - ✅ Automatic source attribution (file_id, filename, chunk previews)\n   - ✅ Confidence calculation based on retrieval scores\n   - ✅ Processing time tracking\n   - ✅ Batch query support\n\n8. **src/__init__.py** (Package Initializer)\n   - ✅ Empty file for Python package structure\n\n---\n\n### Configuration & Documentation\n\n9. **.env** (Environment Variables - Create This!)\n",
+              "length_chars": 5255
+            }
+          ]
+        },
+        {
+          "name": "AI_Scheduler_Agent",
+          "full_name": "pradeepxarul/AI_Scheduler_Agent",
+          "description": null,
+          "html_url": "https://github.com/pradeepxarul/AI_Scheduler_Agent",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 528,
+          "language": "Python",
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2025-10-29T12:05:10Z",
+          "updated_at": "2025-10-29T12:28:19Z",
+          "pushed_at": "2025-10-29T12:28:16Z",
+          "last_commit_date": "2025-10-29T12:28:16Z",
+          "days_since_last_commit": 64,
+          "languages": {
+            "raw_bytes": {
+              "Python": 171451
+            },
+            "percentages": {
+              "Python": 100.0
+            }
+          },
+          "readme": {
+            "content": "﻿# AI_Scheduler_Agent\r\n",
+            "length_chars": 23,
+            "has_readme": true
+          },
+          "markdown_files": [
+            {
+              "filename": "README.md",
+              "path": "tools/README.md",
+              "content": "# AI Scheduling Service\n\nA production-ready AI-powered scheduling assistant built with Streamlit, LangChain, and Google Gemini API. Features multi-user authentication, smart event cancellation, and natural language processing for calendar management.\n\n## 🚀 Features\n\n- **Multi-User Authentication** - Secure login/registration with session management\n- **Smart Event Cancellation** - \"Cancel my meeting with John\" intelligently finds and deletes the right event\n- **Natural Language Processing** - Understands complex scheduling requests\n- **Real-time Calendar Integration** - Full Google Calendar API integration\n- **Advanced Memory System** - Tracks people, locations, and event references\n- **ReAct Agent Pattern** - Intelligent reasoning and action loops\n- **Production-Ready** - Comprehensive error handling and logging\n\n## 📋 Prerequisites\n\n- Python 3.9+\n- Google Cloud Project with Calendar API enabled\n- Google Gemini API key\n\n## 🛠️ Installation\n\n1. **Clone and setup**:\n",
+              "length_chars": 978
+            }
+          ]
+        },
+        {
+          "name": "RAG_AGENT-PDF",
+          "full_name": "pradeepxarul/RAG_AGENT-PDF",
+          "description": "This is RAG Model which gets PDF and finds you the answers for your questions. ;)",
+          "html_url": "https://github.com/pradeepxarul/RAG_AGENT-PDF",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 3158,
+          "language": "HTML",
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2025-09-06T13:02:27Z",
+          "updated_at": "2025-09-06T13:37:33Z",
+          "pushed_at": "2025-09-06T13:37:30Z",
+          "last_commit_date": "2025-09-06T13:37:30Z",
+          "days_since_last_commit": 117,
+          "languages": {
+            "raw_bytes": {
+              "HTML": 25507,
+              "Python": 19028,
+              "JavaScript": 9993,
+              "CSS": 6872
+            },
+            "percentages": {
+              "HTML": 41.5,
+              "Python": 31.0,
+              "JavaScript": 16.3,
+              "CSS": 11.2
+            }
+          },
+          "readme": null,
+          "markdown_files": [
+            {
+              "filename": "README.md",
+              "path": "Frontend/PDF_RAG/README.md",
+              "content": "# React + Vite\n\nThis template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.\n\nCurrently, two official plugins are available:\n\n- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh\n- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh\n\n## Expanding the ESLint configuration\n\nIf you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.\n",
+              "length_chars": 856
+            }
+          ]
+        },
+        {
+          "name": "Sample_Login",
+          "full_name": "pradeepxarul/Sample_Login",
+          "description": "MERN LOGIN ",
+          "html_url": "https://github.com/pradeepxarul/Sample_Login",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 3016,
+          "language": "JavaScript",
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2025-09-01T15:06:42Z",
+          "updated_at": "2025-09-05T14:41:06Z",
+          "pushed_at": "2025-09-05T14:41:03Z",
+          "last_commit_date": "2025-09-05T14:41:03Z",
+          "days_since_last_commit": 118,
+          "languages": {
+            "raw_bytes": {
+              "JavaScript": 20782,
+              "CSS": 3395,
+              "HTML": 361
+            },
+            "percentages": {
+              "JavaScript": 84.7,
+              "CSS": 13.8,
+              "HTML": 1.5
+            }
+          },
+          "readme": null,
+          "markdown_files": [
+            {
+              "filename": "README.md",
+              "path": "frontend/README.md",
+              "content": "# React + Vite\n\nThis template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.\n\nCurrently, two official plugins are available:\n\n- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh\n- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh\n\n## Expanding the ESLint configuration\n\nIf you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.\n",
+              "length_chars": 856
+            }
+          ]
+        },
+        {
+          "name": "onyx",
+          "full_name": "pradeepxarul/onyx",
+          "description": null,
+          "html_url": "https://github.com/pradeepxarul/onyx",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 0,
+          "language": null,
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2024-02-28T06:36:57Z",
+          "updated_at": "2024-02-28T06:36:57Z",
+          "pushed_at": "2024-02-28T06:36:57Z",
+          "last_commit_date": "2024-02-28T06:36:57Z",
+          "days_since_last_commit": 674,
+          "languages": {
+            "raw_bytes": {},
+            "percentages": {}
+          },
+          "readme": null,
+          "markdown_files": []
+        },
+        {
+          "name": "codsoft",
+          "full_name": "pradeepxarul/codsoft",
+          "description": "Codsoft Internship Program in  Python Programming",
+          "html_url": "https://github.com/pradeepxarul/codsoft",
+          "stargazers_count": 0,
+          "forks_count": 0,
+          "watchers_count": 0,
+          "open_issues_count": 0,
+          "size_kb": 3,
+          "language": "Python",
+          "topics": [],
+          "archived": false,
+          "is_fork": false,
+          "has_wiki": true,
+          "has_projects": true,
+          "created_at": "2023-11-26T04:31:42Z",
+          "updated_at": "2023-12-13T16:45:41Z",
+          "pushed_at": "2023-12-13T16:37:51Z",
+          "last_commit_date": "2023-12-13T16:37:51Z",
+          "days_since_last_commit": 750,
+          "languages": {
+            "raw_bytes": {
+              "Python": 7149
+            },
+            "percentages": {
+              "Python": 100.0
+            }
+          },
+          "readme": null,
+          "markdown_files": []
+        }
+      ]
+    }
+  }
+}

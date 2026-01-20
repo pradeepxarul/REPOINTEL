@@ -70,4 +70,4 @@ if __name__ == "__main__":
         result, _ = normalize_github_input(input_val)
         assert result == expected, f"Failed for {input_val}: got {result}, expected {expected}"
     
-    print("✅ All validation tests passed!")
+    print("[SUCCESS] All validation tests passed!")

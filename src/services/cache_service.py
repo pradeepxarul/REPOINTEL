@@ -48,7 +48,7 @@ async def get_cache(key: str) -> Optional[Dict[str, Any]]:
             cache_file.unlink()
             return None
     except Exception as e:
-        print(f"⚠️ Cache read error for {key}: {e}")
+        print(f"[WARN] Cache read error for {key}: {e}")
         return None
 
 
@@ -71,7 +71,7 @@ async def set_cache(key: str, data: Dict[str, Any]):
         with open(cache_file, 'w', encoding='utf-8') as f:
             json.dump(cache_data, f, indent=2, default=str)
     except Exception as e:
-        print(f"⚠️ Cache write error for {key}: {e}")
+        print(f"[WARN] Cache write error for {key}: {e}")
 
 
 async def clear_cache_by_key(key: str):

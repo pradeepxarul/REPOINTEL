@@ -29,9 +29,11 @@ class StorageService:
         Args:
             storage_dir: Directory to store JSON files (default: "db")
         """
-        self.storage_dir = Path(storage_dir)
+        # Get the directory where this file is located (src/services/)
+        current_dir = Path(__file__).parent.parent  # Go up to src/
+        self.storage_dir = current_dir / storage_dir
         self.storage_dir.mkdir(exist_ok=True)
-        logger.info(f"📁 Storage directory: {self.storage_dir.absolute()}")
+        logger.info(f"[STORAGE] Storage directory: {self.storage_dir.absolute()}")
     
     def save_analysis(self, username: str, data: Dict[str, Any]) -> str:
         """
@@ -59,11 +61,11 @@ class StorageService:
             with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(document, f, indent=2, ensure_ascii=False)
             
-            logger.info(f"💾 Saved analysis for '{username}' to {filepath}")
+            logger.info(f"[SAVE] Saved analysis for '{username}' to {filepath}")
             return str(filepath)
             
         except Exception as e:
-            logger.error(f"❌ Failed to save analysis for '{username}': {e}")
+            logger.error(f"[ERROR] Failed to save analysis for '{username}': {e}")
             raise
     
     def load_analysis(self, username: str) -> Optional[Dict[str, Any]]:
@@ -81,17 +83,17 @@ class StorageService:
             filepath = self.storage_dir / filename
             
             if not filepath.exists():
-                logger.warning(f"⚠️ No stored data found for '{username}'")
+                logger.warning(f"[WARN] No stored data found for '{username}'")
                 return None
             
             with open(filepath, 'r', encoding='utf-8') as f:
                 document = json.load(f)
             
-            logger.info(f"📂 Loaded analysis for '{username}' from {filepath}")
+            logger.info(f"[LOAD] Loaded analysis for '{username}' from {filepath}")
             return document
             
         except Exception as e:
-            logger.error(f"❌ Failed to load analysis for '{username}': {e}")
+            logger.error(f"[ERROR] Failed to load analysis for '{username}': {e}")
             return None
     
     def get_all_stored_users(self) -> List[str]:
@@ -104,10 +106,10 @@ class StorageService:
         try:
             json_files = list(self.storage_dir.glob("*.json"))
             usernames = [f.stem for f in json_files]
-            logger.info(f"📊 Found {len(usernames)} stored profiles")
+            logger.info(f"[STATS] Found {len(usernames)} stored profiles")
             return sorted(usernames)
         except Exception as e:
-            logger.error(f"❌ Failed to list stored users: {e}")
+            logger.error(f"[ERROR] Failed to list stored users: {e}")
             return []
     
     def delete_analysis(self, username: str) -> bool:
@@ -126,14 +128,14 @@ class StorageService:
             
             if filepath.exists():
                 filepath.unlink()
-                logger.info(f"🗑️ Deleted analysis for '{username}'")
+                logger.info(f"[DELETE] Deleted analysis for '{username}'")
                 return True
             else:
-                logger.warning(f"⚠️ No file to delete for '{username}'")
+                logger.warning(f"[WARN] No file to delete for '{username}'")
                 return False
                 
         except Exception as e:
-            logger.error(f"❌ Failed to delete analysis for '{username}': {e}")
+            logger.error(f"[ERROR] Failed to delete analysis for '{username}': {e}")
             return False
     
     def get_storage_stats(self) -> Dict[str, Any]:
@@ -160,7 +162,7 @@ class StorageService:
                 "users": users
             }
         except Exception as e:
-            logger.error(f"❌ Failed to get storage stats: {e}")
+            logger.error(f"[ERROR] Failed to get storage stats: {e}")
             return {}
 
 

@@ -1,10 +1,27 @@
 """
 Unified LLM Client for AI-Powered Features
 
-Supports multiple providers:
+[WARN] CURRENTLY UNUSED - DETERMINISTIC MODE ONLY [WARN]
+
+This module contains LLM integration code for GROQ, OpenAI, and Google providers.
+However, the current system uses ONLY deterministic analysis (rule-based classification).
+
+The code is commented out but preserved for potential future LLM integration.
+To enable LLM mode, uncomment this code and set appropriate API keys in .env file.
+
+Supported providers:
 - GROQ (Primary - Fast & Cost-effective)
 - OpenAI (GPT-4)
 - Google (Gemini)
+"""
+
+# ============================================================================
+# LLM CLIENT CODE (CURRENTLY DISABLED)
+# ============================================================================
+# The following code is commented out as the system currently uses
+# deterministic analysis only. Uncomment if you want to enable LLM features.
+# ============================================================================
+
 """
 import os
 from typing import Optional, Any
@@ -13,7 +30,7 @@ from utils.logger import logger
 
 
 class LLMClient:
-    """
+    '''
     Unified client for LLM providers (Groq, OpenAI, Google).
     
     Auto-selects provider based on available API keys:
@@ -21,10 +38,10 @@ class LLMClient:
     2. OpenAI (if OPENAI_API_KEY set)
     3. Google (if GOOGLE_API_KEY set)
     4. None (template mode)
-    """
+    '''
     
     def __init__(self):
-        """Initialize LLM client with auto-detection of available provider."""
+        '''Initialize LLM client with auto-detection of available provider.'''
         self.provider = self._detect_provider()
         self.model = settings.LLM_MODEL
         self.temperature = settings.LLM_TEMPERATURE
@@ -32,7 +49,7 @@ class LLMClient:
         self.client = self._init_client()
     
     def _detect_provider(self) -> str:
-        """Auto-detect available LLM provider based on API keys."""
+        '''Auto-detect available LLM provider based on API keys.'''
         # Priority: GROQ > OpenAI > Google
         if settings.GROQ_API_KEY:
             return "groq"
@@ -44,11 +61,11 @@ class LLMClient:
             return "none"
     
     def _init_client(self) -> Any:
-        """Initialize the LLM client based on provider."""
+        '''Initialize the LLM client based on provider.'''
         try:
             if self.provider == "groq":
                 from groq import Groq
-                logger.info(f"🚀 LLM Client: GROQ {self.model}")
+                logger.info(f"[INIT] LLM Client: GROQ {self.model}")
                 return Groq(api_key=settings.GROQ_API_KEY)
             
             elif self.provider == "openai":
@@ -63,11 +80,11 @@ class LLMClient:
                 return genai
             
             else:
-                logger.warning("⚠️ No LLM API key configured. Using template mode.")
+                logger.warning("[WARN] No LLM API key configured. Using template mode.")
                 return None
                 
         except Exception as e:
-            logger.error(f"❌ Failed to initialize LLM client ({self.provider}): {e}")
+            logger.error(f"[ERROR] Failed to initialize LLM client ({self.provider}): {e}")
             return None
     
     def generate_response(
@@ -77,7 +94,7 @@ class LLMClient:
         max_tokens: Optional[int] = None,
         json_mode: bool = False
     ) -> Optional[str]:
-        """
+        '''
         Generate text response from LLM.
         
         Args:
@@ -88,9 +105,9 @@ class LLMClient:
         
         Returns:
             Generated text or None if failed
-        """
+        '''
         if not self.client:
-            logger.warning("📝 LLM client not available. Template mode active.")
+            logger.warning("[REPORT] LLM client not available. Template mode active.")
             return None
         
         # Use instance defaults if not overridden
@@ -118,7 +135,7 @@ class LLMClient:
                 return response.text
             
         except Exception as e:
-            logger.error(f"❌ LLM generation failed: {e}")
+            logger.error(f"[ERROR] LLM generation failed: {e}")
             return None
     
     def generate_with_system(
@@ -128,7 +145,7 @@ class LLMClient:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None
     ) -> Optional[str]:
-        """
+        '''
         Generate response with system and user prompts (GROQ/OpenAI only).
         
         Args:
@@ -139,7 +156,7 @@ class LLMClient:
         
         Returns:
             Generated text or None if failed
-        """
+        '''
         if not self.client or self.provider not in ["groq", "openai"]:
             logger.warning("System prompts only supported for GROQ/OpenAI")
             return self.generate_response(user_prompt, temperature, max_tokens)
@@ -160,14 +177,42 @@ class LLMClient:
             return response.choices[0].message.content
             
         except Exception as e:
-            logger.error(f"❌ LLM generation failed: {e}")
+            logger.error(f"[ERROR] LLM generation failed: {e}")
             return None
     
     @property
     def is_available(self) -> bool:
-        """Check if LLM client is available."""
+        '''Check if LLM client is available.'''
         return self.client is not None
 
 
 # Singleton instance
 llm_client = LLMClient()
+"""
+
+# ============================================================================
+# STUB FOR BACKWARD COMPATIBILITY
+# ============================================================================
+# Provide a stub to prevent import errors if anything tries to import this
+
+class LLMClientStub:
+    """Stub class for backward compatibility. Always returns None."""
+    
+    def __init__(self):
+        self.provider = "none"
+        self.model = "deterministic"
+        self.client = None
+    
+    def generate_response(self, *args, **kwargs):
+        return None
+    
+    def generate_with_system(self, *args, **kwargs):
+        return None
+    
+    @property
+    def is_available(self):
+        return False
+
+
+# Export stub instance
+llm_client = LLMClientStub()

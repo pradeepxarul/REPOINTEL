@@ -80,15 +80,15 @@ This is the GitHub username (not URL) of the developer you want to assess.""",
             description="""**Use Stored Data?** (Performance optimization)
 
 • **true** (Recommended) - Use previously analyzed data from `db/{username}.json` if available
-  - ✅ **Much faster** (~2-3 seconds vs 5-10 seconds)
-  - ✅ **Saves API calls**
-  - ✅ **Same data** if user was analyzed recently
-  - ⚠️ Data might be slightly outdated
+  - [SUCCESS] **Much faster** (~2-3 seconds vs 5-10 seconds)
+  - [SUCCESS] **Saves API calls**
+  - [SUCCESS] **Same data** if user was analyzed recently
+  - [WARN] Data might be slightly outdated
 
 • **false** - Always fetch fresh data from GitHub
-  - ✅ **Most current data**
-  - ⚠️ **Slower** (needs to fetch from GitHub first)
-  - ⚠️ **More API calls**
+  - [SUCCESS] **Most current data**
+  - [WARN] **Slower** (needs to fetch from GitHub first)
+  - [WARN] **More API calls**
 
 **How it works:**
 1. When you analyze a user with `/analyze`, data is auto-saved to `db/{username}.json`

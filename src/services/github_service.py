@@ -84,7 +84,7 @@ class GitHubService:
                 data = await resp.json()
                 self.token = data["token"]
                 self.expires_at = now + 3600  # Token valid for 1 hour
-                logger.info(f"✅ Generated new GitHub token for installation {self.installation_id}")
+                logger.info(f"[SUCCESS] Generated new GitHub token for installation {self.installation_id}")
                 return self.token
             
             error_msg = await resp.text()
@@ -161,7 +161,7 @@ class GitHubService:
                 reverse=True
             )[:settings.MAX_REPOS_PER_USER]
             
-            logger.info(f"📦 Found {len(sorted_repos)} repos for {username}")
+            logger.info(f"[DATA] Found {len(sorted_repos)} repos for {username}")
             return sorted_repos
     
     async def _get_repo_languages(self, owner: str, repo: str) -> Dict[str, int]:
@@ -184,10 +184,10 @@ class GitHubService:
                     return await resp.json()
                 return {}
         except asyncio.TimeoutError:
-            logger.warning(f"⏱️ Timeout getting languages for {owner}/{repo}")
+            logger.warning(f"[PERF] Timeout getting languages for {owner}/{repo}")
             return {}
         except Exception as e:
-            logger.warning(f"❌ Error getting languages for {owner}/{repo}: {e}")
+            logger.warning(f"[ERROR] Error getting languages for {owner}/{repo}: {e}")
             return {}
     
     async def _get_repo_readme(self, owner: str, repo: str) -> Optional[str]:
@@ -213,10 +213,10 @@ class GitHubService:
                     return await resp.text()
                 return None
         except asyncio.TimeoutError:
-            logger.warning(f"⏱️ Timeout getting README for {owner}/{repo}")
+            logger.warning(f"[PERF] Timeout getting README for {owner}/{repo}")
             return None
         except Exception as e:
-            logger.warning(f"❌ Error getting README for {owner}/{repo}: {e}")
+            logger.warning(f"[ERROR] Error getting README for {owner}/{repo}: {e}")
             return None
     
     async def _get_repo_tree(self, owner: str, repo: str, default_branch: str = 'main') -> List[Dict[str, Any]]:
@@ -246,7 +246,7 @@ class GitHubService:
                         data = await resp.json()
                         return data.get('tree', [])
             except Exception as e:
-                logger.warning(f"⚠️ Error getting tree for {owner}/{repo} on {branch}: {e}")
+                logger.warning(f"[WARN] Error getting tree for {owner}/{repo} on {branch}: {e}")
                 continue
         
         return []
@@ -281,7 +281,7 @@ class GitHubService:
                     
                     # Check size limit (100KB default)
                     if len(content) > max_size_kb * 1024:
-                        logger.warning(f"⚠️ Skipping large markdown file {file_path} ({len(content)} bytes)")
+                        logger.warning(f"[WARN] Skipping large markdown file {file_path} ({len(content)} bytes)")
                         return None
                     
                     return {
@@ -292,8 +292,72 @@ class GitHubService:
                     }
                 return None
         except Exception as e:
-            logger.warning(f"❌ Error fetching {file_path}: {e}")
+            logger.warning(f"[ERROR] Error fetching {file_path}: {e}")
             return None
+    
+    async def _get_dependency_files(self, owner: str, repo: str, tree: List[Dict[str, Any]]) -> Dict[str, str]:
+        """
+        Fetch dependency manifest files from repository.
+        
+        Supported files:
+        - package.json (JavaScript/TypeScript)
+        - requirements.txt, pyproject.toml (Python)
+        - go.mod (Go)
+        - Gemfile (Ruby)
+        - composer.json (PHP)
+        - Cargo.toml (Rust)
+        - pom.xml, build.gradle (Java)
+        
+        Args:
+            owner: Repository owner
+            repo: Repository name
+            tree: Repository file tree
+            
+        Returns:
+            Dict mapping filename -> content
+        """
+        # Define manifest files to look for
+        manifest_patterns = {
+            'package.json', 'requirements.txt', 'pyproject.toml', 'Pipfile',
+            'go.mod', 'Gemfile', 'composer.json', 'Cargo.toml',
+            'pom.xml', 'build.gradle', 'build.gradle.kts'
+        }
+        
+        # Find manifest files in tree (prefer root-level files)
+        manifest_files = []
+        for item in tree:
+            if item.get('type') == 'blob':
+                filename = item.get('path', '').split('/')[-1]
+                if filename in manifest_patterns:
+                    # Prioritize root-level files
+                    depth = item.get('path', '').count('/')
+                    manifest_files.append((depth, item['path'], filename))
+        
+        # Sort by depth (root first) and limit to 5 files
+        manifest_files.sort()
+        manifest_files = manifest_files[:5]
+        
+        if not manifest_files:
+            return {}
+        
+        # Fetch content for all manifest files in parallel
+        fetch_tasks = [
+            self._fetch_markdown_content(owner, repo, path, max_size_kb=200)
+            for _, path, _ in manifest_files
+        ]
+        
+        results = await asyncio.gather(*fetch_tasks, return_exceptions=True)
+        
+        # Build dict of filename -> content
+        dependency_files = {}
+        for (_, path, filename), result in zip(manifest_files, results):
+            if result and not isinstance(result, Exception):
+                dependency_files[filename] = result.get('content', '')
+        
+        if dependency_files:
+            logger.info(f"[SUCCESS] Fetched {len(dependency_files)} dependency files from {owner}/{repo}")
+        
+        return dependency_files
     
     async def _get_all_markdown_files(self, owner: str, repo: str, default_branch: str = 'main', max_files: int = 20) -> List[Dict[str, Any]]:
         """
@@ -332,10 +396,10 @@ class GitHubService:
         md_files = md_files[:max_files]
         
         if not md_files:
-            logger.info(f"📄 No additional markdown files found in {owner}/{repo}")
+            logger.info(f"[FILE] No additional markdown files found in {owner}/{repo}")
             return []
         
-        logger.info(f"📄 Found {len(md_files)} markdown files in {owner}/{repo}")
+        logger.info(f"[FILE] Found {len(md_files)} markdown files in {owner}/{repo}")
         
         # Step 3: Fetch content for all markdown files in parallel
         fetch_tasks = [
@@ -351,31 +415,35 @@ class GitHubService:
             if r is not None and not isinstance(r, Exception)
         ]
         
-        logger.info(f"✅ Successfully fetched {len(valid_files)} markdown files from {owner}/{repo}")
+        logger.info(f"[SUCCESS] Successfully fetched {len(valid_files)} markdown files from {owner}/{repo}")
         return valid_files
 
     
     async def _analyze_single_repo(self, repo_data: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Analyze single repository: get languages + README + ALL markdown files in parallel
+        Analyze single repository: get languages + README + markdown files + dependency files in parallel
         
         Args:
             repo_data: Repository object from GitHub API
         
         Returns:
-            Enriched repository data with languages, README, markdown files, and commit activity
+            Enriched repository data with languages, README, markdown files, dependency files, and commit activity
         """
         owner = repo_data['owner']['login']
         repo = repo_data['name']
         default_branch = repo_data.get('default_branch', 'main')
         
-        # Fetch languages, README, and ALL markdown files in parallel
+        # First, get the file tree (needed for dependency file detection)
+        tree = await self._get_repo_tree(owner, repo, default_branch)
+        
+        # Fetch languages, README, markdown files, and dependency files in parallel
         lang_task = self._get_repo_languages(owner, repo)
         readme_task = self._get_repo_readme(owner, repo)
         markdown_task = self._get_all_markdown_files(owner, repo, default_branch)
+        dependency_task = self._get_dependency_files(owner, repo, tree)
         
-        languages, readme, markdown_files = await asyncio.gather(
-            lang_task, readme_task, markdown_task
+        languages, readme, markdown_files, dependency_files = await asyncio.gather(
+            lang_task, readme_task, markdown_task, dependency_task
         )
         
         # Calculate language percentages
@@ -445,7 +513,10 @@ class GitHubService:
             } if readme else None,
             
             # ALL Markdown Files (COMPLETE content extraction!)
-            "markdown_files": markdown_files  # List of all .md files with full content
+            "markdown_files": markdown_files,  # List of all .md files with full content
+            
+            # Dependency Files (Manifest files for exact version detection)
+            "dependency_files": dependency_files  # Dict of filename -> content
         }
     
     async def analyze_profile(self, username: str) -> Dict[str, Any]:

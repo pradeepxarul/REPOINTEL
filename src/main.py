@@ -43,12 +43,12 @@ async def lifespan(app: FastAPI):
     
     # Startup: Log server initialization
     logger.info("=" * 60)
-    logger.info("🚀 GitHub User Data Analyzer")
-    logger.info(f"📍 Installation ID: {settings.GITHUB_INSTALLATION_ID}")
-    logger.info(f"⚙️  Environment: {settings.ENVIRONMENT}")
-    logger.info(f"📊 Capacity: 112,000 users/month")
-    logger.info(f"⏱️  Latency: <1.5 seconds per analysis")
-    logger.info(f"🔗 Swagger Docs: http://localhost:{settings.PORT}/docs")
+    logger.info("[INIT] GitHub User Data Analyzer")
+    logger.info(f"[INFO] Installation ID: {settings.GITHUB_INSTALLATION_ID}")
+    logger.info(f"[CONFIG]  Environment: {settings.ENVIRONMENT}")
+    logger.info(f"[STATS] Capacity: 112,000 users/month")
+    logger.info(f"[PERF]  Latency: <1.5 seconds per analysis")
+    logger.info(f"[LINK] Swagger Docs: http://localhost:{settings.PORT}/docs")
     logger.info("=" * 60)
     
     yield  # Server runs here
@@ -61,39 +61,31 @@ async def lifespan(app: FastAPI):
 
 # OpenAPI metadata for enhanced Swagger UI
 app = FastAPI(
-    # Basic Information
     title="GitHub User Data Analyzer API",
     description="""
-## 🎯 Production-Grade GitHub Profile Analysis
+# 🎯 AI-Powered GitHub Profile Analysis
 
-Extract **comprehensive candidate data** from GitHub profiles for job portal applications, 
-skill assessment, and AI-powered candidate matching.
+**Transform GitHub profiles into technical insights for data-driven hiring.**
 
-### Features
-- ✅ **Complete Data Extraction**: 26 fields per repository including languages, activity, quality metrics
-- ✅ **Smart Caching**: 24-hour TTL for instant repeat queries (<20ms)
-- ✅ **Enterprise Auth**: GitHub App authentication (5,000 req/hour)
-- ✅ **Parallel Processing**: 32 concurrent API calls for optimal speed
-- ✅ **Production Ready**: Comprehensive error handling, logging, monitoring
+## Features
+- ⚡ **Fast**: <1.2s response, <20ms cached
+- 🔒 **Scalable**: 5,000 requests/hour via GitHub App auth  
+- 📊 **Comprehensive**: 26 data points per repository
+- 🚀 **Production-ready**: Error handling, logging, caching
 
-### Use Cases
-- 📊 **Job Matching**: Language expertise percentages, skill assessment
-- 🎯 **Activity Tracking**: Commit frequency, developer consistency
-- ⭐ **Quality Signals**: Stars, forks, watchers, documentation
-- 👥 **Team Fit**: Collaboration metrics, communication signals
-
-### Performance
-- **Speed**: 1.2s per uncached request, <20ms cached
-- **Capacity**: 112K users/month per server
-- **Reliability**: Enterprise-grade GitHub App authentication
-
-### Quick Start
-Try the `/api/v1/analyze` endpoint with:
+## Quick Start
 ```json
-{
-  "github_input": "torvalds"
-}
+POST /api/v1/analyze {"github_input": "torvalds"}
+POST /api/v1/reports/generate {"username": "torvalds"}
 ```
+
+## Use Cases
+- Technical recruitment & candidate matching
+- Developer skill assessment  
+- Portfolio analysis & role recommendations
+- Technology trend tracking
+
+**Built for modern technical hiring** | [Docs](#) | MIT License
     """,
     version="1.0.0",
     lifespan=lifespan,
@@ -122,14 +114,12 @@ Try the `/api/v1/analyze` endpoint with:
 
 # ============= CORS MIDDLEWARE =============
 
-# Configure Cross-Origin Resource Sharing
-# PRODUCTION NOTE: Replace allow_origins=["*"] with your specific frontend domain
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # TODO: Set to specific domains in production (e.g., ["https://yourapp.com"])
+    allow_origins=["*"],  # Set to specific domains in production
     allow_credentials=True,
-    allow_methods=["*"],  # Allows GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],  # Allows all headers including Authorization
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ============= API ROUTES =============
